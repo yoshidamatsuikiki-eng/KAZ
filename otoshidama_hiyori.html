@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ひよりちゃんのおとしだまちゃれんじ</title>
+
+    <style> 
+        .small-image { width: 300px; /* 幅を300ピクセルに設定 */ height: auto; /* 高さを自動調整 */ } 
+    </style>
+     <body> 
+        <img src="otoshidama_hiyori.png" alt="おとしだまちゃれんじ_ひより" class="small-image">
+     </body>
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            width: 700px;
+            height: 500px;
+            position: relative;
+            background-color: #fff;
+            border: 1px solid #000;
+        }
+        canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .label {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
+        .label img { width: 100px; /* ラベル画像の幅を設定 */ height: auto; /* 高さを自動調整 */
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .image-button { padding: 0; border: none; background: none;margin: 0 40px; /* ボタン間のスペースを設定 */
+        } 
+        .image-button img { width: 150px; /* 画像の幅を設定 */ height: auto; /* 高さを自動調整 */ 
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="rouletteCanvas" width="450" height="450"></canvas>
+        <div class="label"> <img src="arrow_left.png" alt="あたり"> </div>
+    </div>
+    <div class="button-container">
+        <button id="startBtn" class="image-button"> <img src="start.png" alt="スタート">
+        </button>
+        <button id="stopBtn" class="image-button"> <img src="stop.png" alt="ストップ">
+        </button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const canvas = document.getElementById('rouletteCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resultDiv = document.getElementById('result');
+        let isRotating = false;
+        let startAngle = 0;
+        let spinTimeout = null;
+        let speed = 0;
+        let deceleration = 0.995; // 初期減速率
+
+        // プログラマーが設定するセクションデータ（名前、色、角度）
+        const sections = [
+            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '2000円', color: '#3357FF', angle: 20 },
+            { name: '3000円', color: '#FF33A6', angle: 24 },
+            { name: '5000円', color: '#FFD700', angle: 15 },
+            { name: '10000円', color: '#800080', angle: 10 },
+            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '2000円', color: '#3357FF', angle: 20 },
+            { name: '3000円', color: '#FF33A6', angle: 24 },
+            { name: '5000円', color: '#FFD700', angle: 15 },
+            { name: '10000円', color: '#800080', angle: 10 },
+            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '2000円', color: '#3357FF', angle: 20 },
+            { name: '3000円', color: '#FF33A6', angle: 24 },
+            { name: '5000円', color: '#FFD700', angle: 15 },
+            { name: '10000円', color: '#800080', angle: 10 },
+            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '2000円', color: '#3357FF', angle: 20 },
+            { name: '3000円', color: '#FF33A6', angle: 24 },
+            { name: '5000円', color: '#FFD700', angle: 15 },
+            { name: '10000円', color: '#800080', angle: 10 },
+            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '30000円', color: '#DAA520', angle: 4
+
+             }            
+        ];
+
+        function drawRouletteWheel() {
+            const outsideRadius = 225;
+            const insideRadius = 0;
+            const textRadius = 180;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let currentAngle = startAngle;
+
+            for (let section of sections) {
+                const angle = section.angle * (Math.PI / 180); // 角度をラジアンに変換
+                ctx.fillStyle = section.color;
+                
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, currentAngle, currentAngle + angle, false);
+                ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, currentAngle + angle, currentAngle, true);
+                ctx.fill();
+                ctx.save();
+                
+                ctx.fillStyle = '#000';
+                ctx.translate(canvas.width / 2 + Math.cos(currentAngle + angle / 2) * textRadius,
+                              canvas.height / 2 + Math.sin(currentAngle + angle / 2) * textRadius);
+                ctx.rotate(currentAngle + angle / 2);
+                ctx.fillText(section.name, -ctx.measureText(section.name).width / 2, 0);
+                ctx.restore();
+
+                currentAngle += angle;
+            }
+        }
+
+        function rotateWheel() {
+            startAngle += speed;
+            speed *= deceleration; // 減速
+            drawRouletteWheel();
+
+            if (speed > 0.001) {
+                spinTimeout = requestAnimationFrame(rotateWheel);
+            } else {
+                stopWheel();
+            }
+        }
+
+        function startWheel() {
+            if (!isRotating) {
+                isRotating = true;
+                speed = Math.random() * 0.3 + 0.2; // 回転速度をランダムに設定
+                deceleration = 1; // 開始時は減速しない
+                resultDiv.textContent = ''; // 結果をクリア
+                rotateWheel();
+            }
+        }
+
+        function stopWheel() {
+            if (isRotating) {
+                deceleration = Math.random() * 0.04 + 0.94; // ランダムな減速率
+                const targetSpeed = 0.001; // 目標速度
+                const slowingDown = () => {
+                    speed *= deceleration;
+                    drawRouletteWheel();
+                    if (speed > targetSpeed) {
+                        requestAnimationFrame(slowingDown);
+                    } else {
+                        announceResult();
+                    }
+                };
+                slowingDown(); // 減速を開始
+            }
+        }
+
+        function announceResult() {
+            const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2); // 角度を反転させて正確なセクションを取得
+            let accumulatedAngle = 0;
+
+            for (let i = 0; i < sections.length; i++) {
+                accumulatedAngle += sections[i].angle * (Math.PI / 180);
+                if (finalAngle <= accumulatedAngle) {
+                    resultDiv.textContent = `ひよりちゃんのおとしだまは${sections[i].name}です`;
+                    break;
+                }
+            }
+            isRotating = false; // 回転状態をリセット
+        }
+
+        startBtn.addEventListener('click', startWheel);
+        stopBtn.addEventListener('click', stopWheel);
+
+        drawRouletteWheel();
+    </script>
+</body>
+</html>
+
+
+
