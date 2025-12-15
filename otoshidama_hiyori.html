@@ -88,27 +88,26 @@
 
         // プログラマーが設定するセクションデータ（名前、色、角度）
         const sections = [
-            { name: '1000円', color: '#33FF57', angle: 16 },
-            { name: '2000円', color: '#3357FF', angle: 20 },
-            { name: '3000円', color: '#FF33A6', angle: 24 },
-            { name: '5000円', color: '#FFD700', angle: 15 },
-            { name: '10000円', color: '#800080', angle: 10 },
-            { name: '1000円', color: '#33FF57', angle: 16 },
-            { name: '2000円', color: '#3357FF', angle: 20 },
-            { name: '3000円', color: '#FF33A6', angle: 24 },
-            { name: '5000円', color: '#FFD700', angle: 15 },
-            { name: '10000円', color: '#800080', angle: 10 },
-            { name: '1000円', color: '#33FF57', angle: 16 },
-            { name: '2000円', color: '#3357FF', angle: 20 },
-            { name: '3000円', color: '#FF33A6', angle: 24 },
-            { name: '5000円', color: '#FFD700', angle: 15 },
-            { name: '10000円', color: '#800080', angle: 10 },
-            { name: '1000円', color: '#33FF57', angle: 16 },
-            { name: '2000円', color: '#3357FF', angle: 20 },
-            { name: '3000円', color: '#FF33A6', angle: 24 },
-            { name: '5000円', color: '#FFD700', angle: 15 },
-            { name: '10000円', color: '#800080', angle: 10 },
-            { name: '1000円', color: '#33FF57', angle: 16 },
+            { name: '1000円', color: '#33FF57', angle: 5 },
+            { name: '2000円', color: '#3357FF', angle: 17 },
+            { name: '3000円', color: '#FF33A6', angle: 27 },
+            { name: '5000円', color: '#FFD700', angle: 29 },
+            { name: '10000円', color: '#800080', angle: 11 },
+            { name: '1000円', color: '#33FF57', angle: 5 },
+            { name: '2000円', color: '#3357FF', angle: 17 },
+            { name: '3000円', color: '#FF33A6', angle: 27 },
+            { name: '5000円', color: '#FFD700', angle: 29 },
+            { name: '10000円', color: '#800080', angle: 11 },
+            { name: '1000円', color: '#33FF57', angle: 5 },
+            { name: '2000円', color: '#3357FF', angle: 17 },
+            { name: '3000円', color: '#FF33A6', angle: 27 },
+            { name: '5000円', color: '#FFD700', angle: 29 },
+            { name: '10000円', color: '#800080', angle: 11 },
+            { name: '1000円', color: '#33FF57', angle: 5 },
+            { name: '2000円', color: '#3357FF', angle: 17 },
+            { name: '3000円', color: '#FF33A6', angle: 27 },
+            { name: '5000円', color: '#FFD700', angle: 29 },
+            { name: '10000円', color: '#800080', angle: 11 },
             { name: '30000円', color: '#DAA520', angle: 4
 
              }            
@@ -183,19 +182,47 @@
             }
         }
 
-        function announceResult() {
-            const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2); // 角度を反転させて正確なセクションを取得
-            let accumulatedAngle = 0;
+function announceResult() {
+    const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2);
+    let accumulatedAngle = 0;
 
-            for (let i = 0; i < sections.length; i++) {
-                accumulatedAngle += sections[i].angle * (Math.PI / 180);
-                if (finalAngle <= accumulatedAngle) {
-                    resultDiv.textContent = `ひよりちゃんのおとしだまは${sections[i].name}です`;
-                    break;
+    for (let i = 0; i < sections.length; i++) {
+        accumulatedAngle += sections[i].angle * (Math.PI / 180);
+        if (finalAngle <= accumulatedAngle) {
+            const resultText = sections[i].name;
+
+            // 結果を表示（最初は透明）
+            resultDiv.textContent = `ひよりちゃんのおとしだまは ${resultText} です 🎉`;
+            resultDiv.style.opacity = 0;
+
+            // フェードイン開始
+            setTimeout(() => {
+                resultDiv.style.transition = "opacity 2s ease-in";
+                resultDiv.style.opacity = 1;
+            }, 100); // 0.1秒後にフェードイン開始
+
+            // 3秒後にページ遷移
+            setTimeout(() => {
+                if (resultText === "1000円") {
+                    window.location.href = "1000.html";
+                } else if (resultText === "2000円") {
+                    window.location.href = "2000.html";
+                } else if (resultText === "3000円") {
+                    window.location.href = "3000.html";
+                } else if (resultText === "5000円") {
+                    window.location.href = "5000.html";
+                } else if (resultText === "10000円") {
+                    window.location.href = "10000.html";
+                } else if (resultText === "30000円") {
+                    window.location.href = "30000.html";
                 }
-            }
-            isRotating = false; // 回転状態をリセット
+            }, 3000);
+
+            break;
         }
+    }
+    isRotating = false;
+}
 
         startBtn.addEventListener('click', startWheel);
         stopBtn.addEventListener('click', stopWheel);

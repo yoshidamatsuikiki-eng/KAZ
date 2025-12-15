@@ -180,19 +180,47 @@
             }
         }
 
-        function announceResult() {
-            const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2); // 角度を反転させて正確なセクションを取得
-            let accumulatedAngle = 0;
+function announceResult() {
+    const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2);
+    let accumulatedAngle = 0;
 
-            for (let i = 0; i < sections.length; i++) {
-                accumulatedAngle += sections[i].angle * (Math.PI / 180);
-                if (finalAngle <= accumulatedAngle) {
-                    resultDiv.textContent = `あやとくんのおとしだまは${sections[i].name}です`;
-                    break;
+    for (let i = 0; i < sections.length; i++) {
+        accumulatedAngle += sections[i].angle * (Math.PI / 180);
+        if (finalAngle <= accumulatedAngle) {
+            const resultText = sections[i].name;
+
+            // 結果を表示（最初は透明）
+            resultDiv.textContent = `あやとくんのおとしだまは ${resultText} です 🎉`;
+            resultDiv.style.opacity = 0;
+
+            // フェードイン開始
+            setTimeout(() => {
+                resultDiv.style.transition = "opacity 2s ease-in";
+                resultDiv.style.opacity = 1;
+            }, 100); // 0.1秒後にフェードイン開始
+
+            // 3秒後にページ遷移
+            setTimeout(() => {
+                if (resultText === "1000円") {
+                    window.location.href = "1000.html";
+                } else if (resultText === "2000円") {
+                    window.location.href = "2000.html";
+                } else if (resultText === "3000円") {
+                    window.location.href = "3000.html";
+                } else if (resultText === "5000円") {
+                    window.location.href = "5000.html";
+                } else if (resultText === "10000円") {
+                    window.location.href = "10000.html";
+                } else if (resultText === "30000円") {
+                    window.location.href = "30000.html";
                 }
-            }
-            isRotating = false; // 回転状態をリセット
+            }, 3000);
+
+            break;
         }
+    }
+    isRotating = false;
+}
 
         startBtn.addEventListener('click', startWheel);
         stopBtn.addEventListener('click', stopWheel);
