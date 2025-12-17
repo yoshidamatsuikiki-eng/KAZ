@@ -6,13 +6,7 @@
     <title>さんごくんのおとしだまちゃれんじ</title>
 
     <style> 
-        .small-image { width: 300px; /* 幅を300ピクセルに設定 */ height: auto; /* 高さを自動調整 */ } 
-    </style>
-     <body> 
-        <img src="otoshidama_sango.png" alt="おとしだまちゃれんじ_さんご" class="small-image">
-     </body>
-
-<style>
+        .small-image { width: 300px; height: auto; } 
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -24,8 +18,8 @@
             margin: 0;
         }
         .container {
-            width: 700px;
-            height: 500px;
+            width: 600px;
+            height: 400px;
             position: relative;
             background-color: #fff;
             border: 1px solid #000;
@@ -42,37 +36,37 @@
             right: 10px;
             transform: translateY(-50%);
         }
-        .label img { width: 100px; /* ラベル画像の幅を設定 */ height: auto; /* 高さを自動調整 */
-        }
+        .label img { width: 100px; height: auto; }
         .button-container {
             text-align: center;
             margin-top: 20px;
         }
-        .image-button { padding: 0; border: none; background: none;margin: 0 40px; /* ボタン間のスペースを設定 */
-        } 
-        .image-button img { width: 150px; /* 画像の幅を設定 */ height: auto; /* 高さを自動調整 */ 
-        }
-
+        .image-button { padding: 0; border: none; background: none; margin: 0 40px; }
+        .image-button img { width: 150px; height: auto; }
         #result {
             margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
         }
-        
     </style>
 </head>
 <body>
+    <img src="otoshidama_sango.png" alt="おとしだまちゃれんじ_さんご" class="small-image">
+
     <div class="container">
         <canvas id="rouletteCanvas" width="450" height="450"></canvas>
         <div class="label"> <img src="arrow_left.png" alt="あたり"> </div>
     </div>
     <div class="button-container">
-        <button id="startBtn" class="image-button"> <img src="start.png" alt="スタート">
-        </button>
-        <button id="stopBtn" class="image-button"> <img src="stop.png" alt="ストップ">
-        </button>
+        <button id="startBtn" class="image-button"> <img src="start.png" alt="スタート"> </button>
+        <button id="stopBtn" class="image-button"> <img src="stop.png" alt="ストップ"> </button>
     </div>
     <div id="result"></div>
+
+    <!-- 🎵 音声ファイルを準備 -->
+    <audio id="startSound" src="start.mp3"></audio>
+    <audio id="stopSound" src="stop.mp3"></audio>
+    <audio id="funfareSound" src="funfare.mp3"></audio>
 
     <script>
         const canvas = document.getElementById('rouletteCanvas');
@@ -84,9 +78,8 @@
         let startAngle = 0;
         let spinTimeout = null;
         let speed = 0;
-        let deceleration = 0.995; // 初期減速率
+        let deceleration = 0.995;
 
-        // プログラマーが設定するセクションデータ（名前、色、角度）
         const sections = [
             { name: '1000円', color: '#33FF57', angle: 41 },
             { name: '2000円', color: '#3357FF', angle: 28 },
@@ -108,44 +101,37 @@
             { name: '3000円', color: '#FF33A6', angle: 15 },
             { name: '5000円', color: '#FFD700', angle: 3 },
             { name: '10000円', color: '#800080', angle: 2 },
-            { name: '30000円', color: '#DAA520', angle: 4 }            
+            { name: '30000円', color: '#DAA520', angle: 4 }
         ];
 
         function drawRouletteWheel() {
-            const outsideRadius = 225;
+            const outsideRadius = 180;
             const insideRadius = 0;
-            const textRadius = 180;
-            
+            const textRadius = 150;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             let currentAngle = startAngle;
-
             for (let section of sections) {
-                const angle = section.angle * (Math.PI / 180); // 角度をラジアンに変換
+                const angle = section.angle * (Math.PI / 180);
                 ctx.fillStyle = section.color;
-                
                 ctx.beginPath();
                 ctx.arc(canvas.width / 2, canvas.height / 2, outsideRadius, currentAngle, currentAngle + angle, false);
                 ctx.arc(canvas.width / 2, canvas.height / 2, insideRadius, currentAngle + angle, currentAngle, true);
                 ctx.fill();
                 ctx.save();
-                
                 ctx.fillStyle = '#000';
                 ctx.translate(canvas.width / 2 + Math.cos(currentAngle + angle / 2) * textRadius,
                               canvas.height / 2 + Math.sin(currentAngle + angle / 2) * textRadius);
                 ctx.rotate(currentAngle + angle / 2);
                 ctx.fillText(section.name, -ctx.measureText(section.name).width / 2, 0);
                 ctx.restore();
-
                 currentAngle += angle;
             }
         }
 
         function rotateWheel() {
             startAngle += speed;
-            speed *= deceleration; // 減速
+            speed *= deceleration;
             drawRouletteWheel();
-
             if (speed > 0.001) {
                 spinTimeout = requestAnimationFrame(rotateWheel);
             } else {
@@ -156,17 +142,22 @@
         function startWheel() {
             if (!isRotating) {
                 isRotating = true;
-                speed = Math.random() * 0.3 + 0.2; // 回転速度をランダムに設定
-                deceleration = 1; // 開始時は減速しない
-                resultDiv.textContent = ''; // 結果をクリア
+                speed = Math.random() * 0.3 + 0.2;
+                deceleration = 1;
+                resultDiv.textContent = '';
                 rotateWheel();
+
+                // 🎵 スタート音声
+                const audio = document.getElementById("startSound");
+                audio.currentTime = 0;
+                audio.play();
             }
         }
 
         function stopWheel() {
             if (isRotating) {
-                deceleration = Math.random() * 0.04 + 0.94; // ランダムな減速率
-                const targetSpeed = 0.001; // 目標速度
+                deceleration = Math.random() * 0.04 + 0.94;
+                const targetSpeed = 0.001;
                 const slowingDown = () => {
                     speed *= deceleration;
                     drawRouletteWheel();
@@ -176,51 +167,47 @@
                         announceResult();
                     }
                 };
-                slowingDown(); // 減速を開始
+                slowingDown();
+
+                // 🎵 ストップ音声
+                const audio = document.getElementById("stopSound");
+                audio.currentTime = 0;
+                audio.play();
             }
         }
 
-function announceResult() {
-    const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2);
-    let accumulatedAngle = 0;
+        function announceResult() {
+            const finalAngle = (Math.PI * 2 - (startAngle % (Math.PI * 2))) % (Math.PI * 2);
+            let accumulatedAngle = 0;
+            for (let i = 0; i < sections.length; i++) {
+                accumulatedAngle += sections[i].angle * (Math.PI / 180);
+                if (finalAngle <= accumulatedAngle) {
+                    const resultText = sections[i].name;
+                    resultDiv.textContent = `さんごくんのおとしだまは ${resultText} です 🎉`;
+                    resultDiv.style.opacity = 0;
 
-    for (let i = 0; i < sections.length; i++) {
-        accumulatedAngle += sections[i].angle * (Math.PI / 180);
-        if (finalAngle <= accumulatedAngle) {
-            const resultText = sections[i].name;
+                 // 🎵 ファンファーレ音声を再生
+                 const audio = document.getElementById("funfareSound");
+                 audio.currentTime = 0;
+                 audio.play();
 
-            // 結果を表示（最初は透明）
-            resultDiv.textContent = `さんごくんのおとしだまは ${resultText} です 🎉`;
-            resultDiv.style.opacity = 0;
-
-            // フェードイン開始
-            setTimeout(() => {
-                resultDiv.style.transition = "opacity 2s ease-in";
-                resultDiv.style.opacity = 1;
-            }, 100); // 0.1秒後にフェードイン開始
-
-            // 3秒後にページ遷移
-            setTimeout(() => {
-                if (resultText === "1000円") {
-                    window.location.href = "1000.html";
-                } else if (resultText === "2000円") {
-                    window.location.href = "2000.html";
-                } else if (resultText === "3000円") {
-                    window.location.href = "3000.html";
-                } else if (resultText === "5000円") {
-                    window.location.href = "5000.html";
-                } else if (resultText === "10000円") {
-                    window.location.href = "10000.html";
-                } else if (resultText === "30000円") {
-                    window.location.href = "30000.html";
+                    setTimeout(() => {
+                        resultDiv.style.transition = "opacity 2s ease-in";
+                        resultDiv.style.opacity = 1;
+                    }, 100);
+                    setTimeout(() => {
+                        if (resultText === "1000円") window.location.href = "1000.html";
+                        else if (resultText === "2000円") window.location.href = "2000.html";
+                        else if (resultText === "3000円") window.location.href = "3000.html";
+                        else if (resultText === "5000円") window.location.href = "5000.html";
+                        else if (resultText === "10000円") window.location.href = "10000.html";
+                        else if (resultText === "30000円") window.location.href = "30000.html";
+                    }, 3000);
+                    break;
                 }
-            }, 3000);
-
-            break;
+            }
+            isRotating = false;
         }
-    }
-    isRotating = false;
-}
 
         startBtn.addEventListener('click', startWheel);
         stopBtn.addEventListener('click', stopWheel);

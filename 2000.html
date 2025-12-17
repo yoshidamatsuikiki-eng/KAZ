@@ -19,5 +19,18 @@
 </head>
 <body>
     <img src="2000.png" alt="2000円の画像">
+
+    <!-- 🎵 結果ページ用の音声 -->
+    <audio id="resultSound" src="cong.mp3"></audio>
+
+    <script>
+        window.onload = () => {
+            setTimeout(() => {
+                const audio = document.getElementById("resultSound");
+                audio.currentTime = 0; // 毎回最初から再生
+                audio.play();
+            }, 2000); // 2秒後に再生
+        };
+    </script>
 </body>
 </html>
